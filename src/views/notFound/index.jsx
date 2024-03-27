@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { styled } from '@mui/material/styles';
-import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
+import Stack from '@mui/material/Stack';
+import Divider from '@mui/material/Divider';
 //images
 import CoffieMaker from "../../images/coffee-maker.png";
 
@@ -11,25 +12,32 @@ const Img = styled("img")(() => ({
   height: '10rem'
 }));
 
-const ImgBox = styled(Box)(() => ({
+const Centered = styled("div")(() => ({
   display: 'flex',
-  alignContent: 'center',
-  justifyContent: 'center'
-}));
+  flexDirection: 'row',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '80vh'
+}
+));
 
 export default function NotFound() {
   return (
-    <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }} >
-      <Grid item xs={12}>
-        <Box sx={{ textAlign: "center" }}>
-          <ImgBox>
-            <Img src={CoffieMaker} alt="" />
-          </ImgBox>
-          <Typography variant="h1">404</Typography>
-          <p>Página no encontrada</p>
+    <Centered>
+      <Stack
+        direction="row"
+        justifyContent="center"
+        alignItems="center"
+        spacing={2}
+        divider={<Divider orientation="vertical" flexItem />}
+      >
+        <Img src={CoffieMaker} alt="" />
+        <Box>
+          <Typography variant="h1" sx={{ fontWeight: '500' }}>404</Typography>
+          <Typography variant="h6">Página no encontrada</Typography>
         </Box>
-      </Grid>
-    </Grid>
+      </Stack>
+    </Centered>
   );
 }
 

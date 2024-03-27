@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useNavigate } from "react-router-dom";
 //import PropTypes from 'prop-types';
 import { styled, alpha } from '@mui/material/styles';
 import InputBase from '@mui/material/InputBase';
@@ -11,133 +12,214 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  '& .MuiInputBase-input': {
-    color: 'black !important',
-    padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    paddingRight: `calc(1em + ${theme.spacing(8)})`,
-    width: '100%',
-    transition: theme.transitions.create('width'),
-    border: '1px solid #ccc',
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
+const StyledInputBase = styled(Paper)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.common.white, 0.15),
+  border: '1px solid rgba(68,89,100,0.6) !important',
+  [theme.breakpoints.up('sm')]: {
+    border: '1px solid transparent !important',
     '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    marginRight: 0,
-    [theme.breakpoints.up('md')]: {
-      width: '40ch',
-      color: 'white !important',
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-      border: '1px solid transparent',
-    },
-    [theme.breakpoints.up('lg')]: {
-      width: '50ch',
-      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+      backgroundColor: alpha(theme.palette.common.white, 0.30)
     }
   },
+  '& .MuiInputBase-input': {
+    color: 'rgba(68,89,100,1) !important',
+    padding: theme.spacing(1, 1, 1, 0),
+    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    width: '100%',
+    transition: theme.transitions.create('width'),
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.black, 0),
+    marginLeft: 0,
+    marginRight: 0,
+    [theme.breakpoints.up('sm')]: {
+      border: '1px solid transparent !important',
+      color: 'white !important',
+    }
+  }
 }));
 
 SearchAutocomplete.propTypes = {}
 
+const categoryType = "TAZ01"; //sera un estado global de redux
+
 export default function SearchAutocomplete(props = {}) {
-  const options = top100Films.map((option) => {
-    const firstLetter = option.title[0].toUpperCase();
-    return {
-      firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
-      ...option,
-    };
-  });
+  const navigate = useNavigate();
+  const [autocompleteValue, setAutocompleteValue] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+  const [options, setOptions] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
-  return (
-    <Autocomplete
-      sx={{
-        display: 'inline-block',
-        width: '100%',
-        '& input': {
-          width: '100%',
-          bgcolor: 'background.paper',
-          color: (theme) =>
-            theme.palette.getContrastText(theme.palette.background.paper),
+  const optionData = [
+    { id: 'P-ABC001', owner: 'Jose Perez', brand: 'Toyota Corolla 2021', avatar: "https://mui.com/static/images/avatar/3.jpg" },
+    { id: 'P-ABC002', owner: 'Juan Lopez', brand: 'Toyota Corolla 2020', avatar: "https://mui.com/static/images/avatar/2.jpg" },
+    { id: 'P-ABC003', owner: 'Griselda Rodriguez', brand: 'Toyota Corolla 2005', avatar: "https://mui.com/static/images/avatar/1.jpg" },
+    { id: 'P-ABC024', owner: 'Alejo Sibrian', brand: 'Honda Civic 2021', avatar: "https://mui.com/static/images/avatar/3.jpg" },
+    { id: 'P-ABC035', owner: 'Joselin Salazar', brand: 'Honda Civic 2021', avatar: "https://mui.com/static/images/avatar/2.jpg" },
+    { id: 'P-ABC046', owner: 'Pedro Paramo', brand: "Nissan Centra 2010", avatar: "https://mui.com/static/images/avatar/1.jpg" },
+    { id: 'P-ABC057', owner: 'Rita Cuellar', brand: 'Chevrolet Spark 2015', avatar: "https://mui.com/static/images/avatar/3.jpg" }
+  ];
+
+  React.useEffect(() => {
+    if (!open) {
+      setOptions([]);
+    } else {
+      setLoading(true);
+      (async () => {
+        await sleep(800);
+        setOptions([...optionData]);
+        setLoading(false);
+      })();
+    }
+  }, [open]);
+
+  function sleep(delay = 0) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, delay);
+    });
+  }
+
+  const handleChange = (event, value) => {
+    if (value && value.id) {
+      const route = `/user/activity/${value.id}`;
+      navigate(route);
+    }
+    return;
+  };
+
+  function renderOptionsAutocomplete(optionElement, value, variant = "") {
+    const matches = match(optionElement, value, { insideWords: true });
+    const parts = parse(optionElement, matches);
+
+    return (
+      <Typography variant={variant} color="text.primary">
+        {
+          parts.map((part, index) => (
+            <span key={index} style={{ fontWeight: part.highlight ? 700 : 400 }}>
+              {part.text}
+            </span>
+          ))
         }
-      }}
-      id="custom-input-demo"
-      options={options.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
-      getOptionLabel={(option) => `${option.title} ${option.subTitle}`}
-      renderInput={(params) => (
-        <div ref={params.InputProps.ref}>
-          <StyledInputBase
-            placeholder="Buscar historial"
-            aria-label="search-imput"
-            {...params.inputProps}
-            sx={{ width: '100%'}}
-          />
-        </div>
-      )}
-      renderOption={(props, option, { inputValue }) => {
-        const matchesTitles = match(option.title, inputValue, { insideWords: true });
-        const partsTitle = parse(option.title, matchesTitles);
+      </Typography>
+    );
+  }
 
-        const matchesSubTitle = match(option.subTitle, inputValue, { insideWords: true });
-        const partsSubTitle = parse(option.subTitle, matchesSubTitle);
+  function renderOptionLabel(option) {
+    //get type
+    let optionType;
 
-        return (
-          <List {...props} sx={{ width: '100%', bgcolor: 'background.paper' }}>
-            <ListItem alignItems="flex-start">
-              <ListItemAvatar>
-                <Avatar alt="" src={option.avatar} />
-              </ListItemAvatar>
-              <ListItemText
-                sx={{ paddingBottom: '0.4rem', borderBottom: '1px solid #efefef' }}
-                primary={
-                  <React.Fragment>
-                    <Typography variant="body1" color="text.primary">
-                      {
-                        partsTitle.map((part, index) => (
-                          <span
-                            key={index}
-                            style={{ fontWeight: part.highlight ? 700 : 400 }}
-                          >
-                            {part.text}
-                          </span>
-                        ))
-                      }
-                    </Typography>
-                    <Typography variant="body2" color="text.primary">
-                      {
-                        partsSubTitle.map((part, index) => (
-                          <span
-                            key={index}
-                            style={{ fontWeight: part.highlight ? 700 : 400 }}
-                          >
-                            {part.text}
-                          </span>
-                        ))
-                      }
-                    </Typography>
-                  </React.Fragment>
+    switch (categoryType) {
+      case "CNA01": optionType = ``; break;
+      case "COA01": optionType = ``; break;
+      case "TAZ01": optionType = `${option?.id} ${option?.owner} ${option?.brand}`; break;
+      default: optionType = ``;
+    }
+
+    return optionType;
+  }
+
+  function renderListItemText(option, inputValue) {
+    if (categoryType === "CNA01") {
+      return;
+    }
+
+    if (categoryType === "COA01") {
+      return;
+    }
+
+    if (categoryType === "TAZ01") {
+      return (
+        <React.Fragment>
+          {renderOptionsAutocomplete(`${option?.id} | ${option?.brand}`, inputValue, "body1")}
+          {renderOptionsAutocomplete(option?.owner, inputValue, "body2")}
+        </React.Fragment>
+      );
+    }
+  }
+
+  function render() {
+    const optionData = options.map((option) => {
+      const firstLetter = option.owner[0].toUpperCase();
+      return {
+        firstLetter: /[0-9]/.test(firstLetter) ? '0-9' : firstLetter,
+        ...option,
+      };
+    });
+
+    return (
+      <Autocomplete
+        inputValue={autocompleteValue}
+        sx={{
+          display: 'inline-block',
+          width: '100%',
+          //height: '3rem',
+          '& input': {
+            width: '100%',
+            //height: '2rem',
+            bgcolor: 'background.paper',
+            color: (theme) =>
+              theme.palette.getContrastText(theme.palette.background.paper),
+          }
+        }}
+        id="autocomplete"
+        open={open}
+        onOpen={() => { setOpen(true); }}
+        onClose={() => { setOpen(false); }}
+        options={optionData.sort((a, b) => -b.firstLetter.localeCompare(a.firstLetter))}
+        //groupBy={(option) => option.firstLetter}
+        getOptionLabel={(option) => renderOptionLabel(option)}
+        renderInput={(params) =>
+          <div ref={params.InputProps.ref}>
+            <StyledInputBase
+              component="form"
+              sx={{ display: 'flex', alignItems: 'center' }}
+            >
+              <InputBase
+                placeholder="Buscar historicos"
+                aria-label="search-input"
+                {...params.inputProps}
+                sx={{ width: '100% !important' }}
+                endAdornment={
+                  <Box sx={{ p: '8px 10px 2px 10px', color: 'white' }} aria-label="directions">
+                    {loading ? <CircularProgress sx={{ color: 'white' }} size={20} /> : null}
+                  </Box>
                 }
               />
-            </ListItem>
-          </List>
-        );
-      }}
-    />
-  );
+            </StyledInputBase>
+          </div>
+        }
+        renderOption={(props, option, { inputValue }) => {
+          const listItemTextValue = renderListItemText(option, inputValue);
+
+          return (
+            <List {...props} sx={{ width: '100%', bgcolor: 'background.paper' }}>
+              <ListItem alignItems="flex-start">
+                <ListItemAvatar>
+                  <Avatar alt="" src={option?.avatar} />
+                </ListItemAvatar>
+                <ListItemText primary={listItemTextValue} />
+              </ListItem>
+            </List>
+          )
+        }}
+        noOptionsText={'No se encontró ningún registro'}
+        onChange={handleChange}
+        loading={loading}
+        loadingText={"Espere, cargando data..."}
+        onInputChange={(event, newInputValue, reason) => {
+          if (reason === "reset") {
+            setAutocompleteValue("");
+            return;
+          } else {
+            setAutocompleteValue(newInputValue)
+          }
+        }}
+      />
+    );
+  }
+
+  return render();
 }
-
-
-// Top 100 films as rated by IMDb users. http://www.imdb.com/chart/top
-const top100Films = [
-  { title: 'The Shawshank Redemption', subTitle: 'The Lord of the Rings: The Return of the King', avatar: "https://mui.com/static/images/avatar/3.jpg" },
-  { title: 'The Godfather', subTitle: 'The Good, the Bad and the Ugly', avatar: "https://mui.com/static/images/avatar/2.jpg" },
-  { title: 'The Godfather: Part II', subTitle: 'Fight Club', avatar: "https://mui.com/static/images/avatar/1.jpg" },
-  { title: 'The Dark Knight', subTitle: 'The Lord of the Rings: The Fellowship of the Ring', avatar: "https://mui.com/static/images/avatar/3.jpg" },
-  { title: '12 Angry Men', subTitle: 'Star Wars: Episode V - The Empire Strikes Back', avatar: "https://mui.com/static/images/avatar/2.jpg" },
-  { title: "Schindler's List", subTitle: 'Forrest Gump', avatar: "https://mui.com/static/images/avatar/1.jpg" },
-  { title: 'Pulp Fiction', subTitle: 'Star Wars: Episode IV - A New Hope', avatar: "https://mui.com/static/images/avatar/3.jpg" }
-];

@@ -1,73 +1,80 @@
 import * as React from 'react';
-//import PropTypes from 'prop-types';
+import { useParams } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
+import Fab from '@mui/material/Fab';
+//icons
+import AddIcon from '@mui/icons-material/Add';
 //components
 import HistoryTimeLine from '../../../components/User/HistoryTimeLine';
-//images
-import dobleCheck from '../../../images/dobleCheck.png';
-import mecanico from '../../../images/mecanico.png';
-//styled
-import { DashboardWrapper, ImageLogo, MainBoxPaper, BoxPaper } from './styled';
+import LoadViews from '../../../components/Shared/Loaders/LoadViews';
 
-//Activity.propTypes = {};
+//styled
+import { ActivityWrapper, MainBoxPaper } from './styled';
 
 export default function Activity(props = {}) {
-  return (
-    <React.Fragment>
-      <MainBoxPaper sx={{ background: { xs: 'none', md: `url(${mecanico})` } }}>
-        <Grid container >
-          <Grid xs={12} md={8}>
-            <DashboardWrapper>
-              <ImageLogo src={dobleCheck} alt="" />
-              <Typography variant="h4" color="text.primary">Activity</Typography>
-              <Typography color="text.primary">Bienvenido al panel de control de <em>Double Check</em></Typography>
-              <Grid container spacing={2} sx={{ marginTop: '2rem' }}>
-                <Grid xs={6} sm={4} lg={3}>
-                  <BoxPaper elevation={3} >
-                    <Typography color="text.primary">Actividades</Typography>
-                    <Typography
-                      variant="h2"
-                      color="text.primary"
-                      sx={{ textAlign: 'center'}}
-                    >5</Typography>
-                  </BoxPaper>
-                </Grid>
-                <Grid xs={6} sm={4} lg={3}>
-                  <BoxPaper elevation={3} >
-                    <Typography color="text.primary">Pendientes</Typography>
-                    <Typography
-                      variant="h2"
-                      color="text.primary"
-                      sx={{ textAlign: 'center' }}
-                    >8</Typography>
-                  </BoxPaper>
-                </Grid>
-                <Grid xs={6} sm={4} lg={3}>
-                  <BoxPaper elevation={3} >
-                    <Typography color="text.primary">Usuarios</Typography>
-                    <Typography
-                      variant="h2"
-                      color="text.primary"
-                      sx={{ textAlign: 'center'}}
-                    >14</Typography>
-                  </BoxPaper>
-                </Grid>
-              </Grid>
-            </DashboardWrapper>
-          </Grid>
-        </Grid>
-      </MainBoxPaper>
+  const { userId } = useParams();
+  const [loading, setLoading] = React.useState(true);
+  const timer = React.useRef();
+
+  React.useEffect(() => {
+    timer.current = setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+
+    return () => {
+      clearTimeout(timer.current);
+    };
+  }, []);
+
+  function renderActivity() {
+    return (
       <MainBoxPaper>
         <Typography variant="h4" color="text.primary">Timeline</Typography>
         <Typography color="text.primary">Todo el historico de cambios</Typography>
         <Grid container>
-          <Grid xs={12}>
+          <Grid item xs={12}>
             <HistoryTimeLine />
           </Grid>
         </Grid>
       </MainBoxPaper>
-    </React.Fragment>
-  );
+    );
+  }
+
+  function renderFindActivity() {
+    return (
+      <MainBoxPaper>
+        <Grid container >
+          <Grid item xs={12} md={8}>
+            <ActivityWrapper>
+              <Typography variant="h4" color="text.primary">Activity</Typography>
+              <Typography color="text.primary">Buscar historicos</Typography>
+            </ActivityWrapper>
+          </Grid>
+        </Grid>
+      </MainBoxPaper>
+    );
+  }
+
+  function render() {
+    if (loading) {
+      return <LoadViews />;
+    } else {
+      if (userId) {
+        return (
+          <React.Fragment>
+            {renderActivity()}
+            <Fab color='success' sx={{ position: 'fixed', bottom: 38, right: 28, background: 'rgba(68,89,100,1)', color: 'white' }} >
+              <AddIcon />
+            </Fab>
+          </React.Fragment>
+        );
+      } else {
+        return renderFindActivity();
+      }
+    }
+  }
+
+  return render();
 }
 

@@ -6,37 +6,36 @@ import { BrowserRouter } from "react-router-dom";
 import Router from "../../routes/allRoutes";
 //components
 import { NavBar } from '../../components/AppBar/NavBar';
+import SearchInput from '../../components/Shared/Searchs/SearchInput';
 
-const RouterOutlet = styled('div', { shouldForwardProp: (prop) => prop })(({ theme, openDrawer, isAuth }) => ({
+const RouterOutlet = styled('div')(({ theme }) => ({
   marginLeft: theme.spacing(0),
   marginRight: theme.spacing(0),
   marginTop: theme.spacing(0),
-  marginBottom: theme.spacing(4),
+  marginBottom: theme.spacing(0),
   paddingTop: theme.spacing(8),
-  [theme.breakpoints.up('md')]: {
-    marginLeft: openDrawer && isAuth ? theme.spacing(30) : theme.spacing(0)
-  }
+  paddingRight: theme.spacing(3),
+  paddingBottom: theme.spacing(1),
+  paddingLeft: theme.spacing(3)
 }));
 
 export default function App() {
   //breakpoint
-  const md = useMediaQuery(useTheme().breakpoints.up('md'));
+  const xs = useMediaQuery(useTheme().breakpoints.up('xs'));
+  const sm= useMediaQuery(useTheme().breakpoints.up('sm'));
+
   //init states
   const [isAuth, setIsAuth] = React.useState();
-  const [openDrawer, setOpenDrawer] = React.useState(md ? true : false);
 
   React.useEffect(() => {
     setIsAuth(true);
   }, []);
 
-  function isOpenDrawer(open) {
-    setOpenDrawer(open);
-  }
-
   return (
-    <RouterOutlet isAuth={isAuth} openDrawer={openDrawer}>
+    <RouterOutlet isAuth={isAuth}>
       <BrowserRouter>
-        <NavBar isAuth={isAuth} isOpenDrawer={(open) => isOpenDrawer(open)} />
+        <NavBar isAuth={isAuth} />
+        {xs && !sm && <div><SearchInput /></div>}
         <Router />
       </BrowserRouter>
     </RouterOutlet>

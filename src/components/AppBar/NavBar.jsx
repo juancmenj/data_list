@@ -1,67 +1,86 @@
 import * as React from 'react';
 import PropTypes from 'prop-types';
-import { styled, useTheme } from '@mui/material/styles';
+import { Link as RouterLink } from 'react-router-dom';
+import { styled, alpha, useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import Button from '@mui/material/Button';
+import Fab from '@mui/material/Fab';
+import Tooltip from '@mui/material/Tooltip';
 //icons
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import DashboardTwoToneIcon from '@mui/icons-material/DashboardTwoTone';
+import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
+import VpnKeyTwoToneIcon from '@mui/icons-material/VpnKeyTwoTone';
 //components
-import NavMenu from './Menu';
+import NavMenu from './NavMenu';
 import AccountMenu from "../User/AccountMenu";
-import LeftDrawer from './LeftDrawer';
-import SearchHistory from './SearchHistory';
 import Register from "../Authentication/Register";
 import LogIn from "../Authentication/LogIn";
 import DialogContainer from "../Shared/Modals/DialogContainer";
-
-const drawerWidth = 240;
+import SearchInput from '../Shared/Searchs/SearchInput';
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+})(({ theme }) => ({
   zIndex: theme.zIndex.drawer + 1,
   transition: theme.transitions.create(['width', 'margin'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
-  }),
-  ...(open && {
-    marginLeft: drawerWidth,
-    width: `calc(100% - ${drawerWidth}px)`,
-    transition: theme.transitions.create(['width', 'margin'], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
+  })
 }));
 
-const Logo = styled(Typography)(() => ({
+const Logo = styled(Typography)(({ theme }) => ({
   marginRight: '2rem',
   display: 'flex',
   fontFamily: 'monospace',
   fontWeight: 700,
-  letterSpacing: '.1rem',
+  fontSize: '1.1rem',
+  letterSpacing: '0.06rem',
   color: 'inherit',
   textDecoration: 'none',
-  flexGrow: 1
+  flexGrow: 1,
+  [theme.breakpoints.up('sm')]: {
+    fontSize: '1.2rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    letterSpacing: '0.1rem',
+    fontSize: '1.3rem',
+  },
+  [theme.breakpoints.up('md')]: {
+    fontSize: '1.4rem',
+  }
+}
+));
+
+const FabIcon = styled(Fab)(({ theme }) => ({
+  backgroundColor: alpha(theme.palette.common.black, 0),
+  boxShadow: 'none',
+  transition: theme.transitions.create(['width', 'margin'], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.enteringScreen
+  }),
+  border: '1px solid transparent',
+  '&:hover': {
+    backgroundColor: alpha(theme.palette.common.black, 0.09)
+  },
+  '&:active': {
+    backgroundColor: alpha(theme.palette.common.black, 0.01)
+  },
+  marginRight: '0.4rem'
 }
 ));
 
 NavBar.propTypes = {
-  isAuth: PropTypes.bool,
-  isOpenDrawer: PropTypes.func
+  isAuth: PropTypes.bool
 }
 
 export function NavBar(props = {}) {
   //breakpoint
-  const md = useMediaQuery(useTheme().breakpoints.up('md'));
+  const sm = useMediaQuery(useTheme().breakpoints.up('sm'));
   //init states
-  const [openDrawer, setOpenDrawer] = React.useState(md ? true : false);
   const [openRegister, setOpenRegister] = React.useState(false);
   const [openLogIn, setOpenLogIn] = React.useState(false);
 
@@ -83,57 +102,63 @@ export function NavBar(props = {}) {
     setOpenLogIn(false);
   }
 
-  function handleDrawerOpen() {
-    setOpenDrawer(true);
-    props.isOpenDrawer(true);
-  };
+  function renderIcon(iconName) {
+    const icons = {
+      "DashboardTwoToneIcon": DashboardTwoToneIcon,
+      "AccountTreeTwoToneIcon": AccountTreeTwoToneIcon,
+      "VpnKeyTwoToneIcon": VpnKeyTwoToneIcon
+    };
 
-  function handleDrawerClose(isClose) {
-    setOpenDrawer(isClose);
-    props.isOpenDrawer(isClose);
-  };
+    const Component = icons[iconName];
+    return <Component />;
+  }
 
-  if (props.isAuth) {
+  function renderMenuAuth() {
     return (
       <Box sx={{ flexGrow: 1 }}>
-        <AppBar position="fixed" open={openDrawer} sx={{ background: 'rgba(68,89,100,1)' }}>
+        <AppBar position="fixed" sx={{ background: 'rgba(68,89,100,1)' }}>
           <Toolbar>
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              onClick={() => handleDrawerOpen()}
-              edge="start"
-              sx={{ marginRight: 1, ...(openDrawer && { display: 'none' }) }}
-            >
-              <MenuIcon />
-            </IconButton>
-            {
-              !openDrawer ?
-                <React.Fragment>
-                  <CreateNewFolderIcon sx={{ mr: 1 }} />
-                  <Logo variant="h6" noWrap>dataLIST</Logo>
-                </React.Fragment>
-                : <Logo />
-            }
-            <SearchHistory />
+            <CreateNewFolderIcon sx={{ mr: 1 }} />
+            <Logo noWrap>dataLIST</Logo>
+            {sm && <SearchInput />}
+            <NavMenu />
             <AccountMenu />
           </Toolbar>
         </AppBar>
-        <LeftDrawer
-          openHandle={openDrawer}
-          closeHandle={(isClose) => handleDrawerClose(isClose)}
-        />
       </Box>
     );
-  } else {
+  }
+
+  function renderMenu() {
+    const staticLink = [
+      { label: 'Inicia sesión', icon: 'VpnKeyTwoToneIcon', route: "/user/dashboard" }
+    ];
     return (
       <Box>
         <AppBar position="fixed" sx={{ background: '#445964' }}>
-          <Toolbar>
+          <Toolbar disableGutters>
             <CreateNewFolderIcon sx={{ mr: 1 }} />
             <Logo variant="h6" noWrap >dataLIST</Logo>
             <Box sx={{ mr: 1 }}>
-              <Button onClick={() => handleClickOpenLogIn()} color="inherit" sx={{ textTransform: `none` }}>Inicia sesión</Button>
+              {
+                staticLink?.map((el, index) => {
+                  return (
+                    <Tooltip title={el.label}>
+                      <FabIcon
+                        key={index}
+                        color="inherit"
+                        variant="circular"
+                        size="small"
+                        component={RouterLink}
+                        to={el.route}
+                        onClick={() => handleClickOpenLogIn()}
+                      >
+                        {renderIcon(el.icon)}
+                      </FabIcon>
+                    </Tooltip>
+                  );
+                })
+              }
             </Box>
             <NavMenu />
           </Toolbar>
@@ -155,4 +180,13 @@ export function NavBar(props = {}) {
     );
   }
 
+  function render() {
+    if (props.isAuth) {
+      return renderMenuAuth();
+    } else {
+      return renderMenu();
+    }
+  }
+
+  return render();
 }

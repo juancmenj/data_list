@@ -8,12 +8,16 @@ import SearchAutocomplete from "./SearchAutocomplete";
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
   color: 'white !important',
-  width: '100% !important',
+  width: '100%',
+  marginRight: '0rem',
   [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(4),
-    width: '100%',
+    width: '50%',
+    marginRight: '1rem'
+  },
+  [theme.breakpoints.up('md')]: {
+    marginRight: '2rem'
   }
+  
 }));
 
 const SearchIconWrapper = styled('div')(({ theme }) => ({
@@ -28,7 +32,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const SearchIconColor = styled(SearchIcon)(({ theme }) => ({
   color: 'black !important',
-  [theme.breakpoints.up('md')]: {
+  [theme.breakpoints.up('sm')]: {
     color: 'white !important',
   }
 }));

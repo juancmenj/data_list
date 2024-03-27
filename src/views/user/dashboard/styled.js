@@ -25,7 +25,7 @@ export const MainBoxPaper = styled(Paper)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   padding: '1rem',
-  margin: '1rem',
+  marginTop: '1rem',
   backgroundColor: 'rgba(255, 255, 255, 0.2) !important',
   backgroundRepeat: 'no-repeat !important',
   backgroundPosition: 'center center !important',

@@ -13,9 +13,9 @@ import '@fontsource/roboto/700.css';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <div style={{ width: '100%', minHeight: '100vh', background: `rgba(235,235,235.1) url(${gradiente})`, backgroundSize: 'cover', backgroundAttachment: 'fixed' }} >
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
   </div>
 );
 

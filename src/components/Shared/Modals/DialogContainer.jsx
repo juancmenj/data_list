@@ -30,31 +30,29 @@ export default function DialogContainer(props = {}) {
   const { openHandle, handleClose, children } = props;
 
   return (
-    <div>
-      <BootstrapDialog
-        open={openHandle}
-        onClose={handleClose}
-        TransitionComponent={Transition}
-        keepMounted
-        scroll={"body"}
-      >
-        {children}
-        {handleClose ? (
-          <IconButton
-            aria-label="close"
-            onClick={handleClose}
-            sx={{
-              position: 'absolute',
-              right: 8,
-              top: 8,
-              color: (theme) => theme.palette.grey[500],
-            }}
-          >
-            <CloseIcon />
-          </IconButton>
-        ) : null}
+    <BootstrapDialog
+      open={openHandle}
+      onClose={handleClose}
+      TransitionComponent={Transition}
+      keepMounted
+      scroll={"body"}
+    >
+      {children}
+      {handleClose ? (
+        <IconButton
+          aria-label="close"
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
+      ) : null}
 
-      </BootstrapDialog>
-    </div>
+    </BootstrapDialog>
   );
 }
